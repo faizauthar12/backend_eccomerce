@@ -11,6 +11,7 @@ import (
 
 	"github.com/faizauthar12/backend_eccomerce/global-utils/helper"
 	"github.com/faizauthar12/backend_eccomerce/global-utils/model"
+	"github.com/google/uuid"
 
 	"github.com/dchest/uniuri"
 	"github.com/faizauthar12/backend_eccomerce/global-utils/mongodb"
@@ -54,7 +55,7 @@ func (r *UserRepository) Insert(
 	passwordHash := pbkdf2.Key([]byte(request.Password), []byte(salt), 10000, 64, sha1.New)
 
 	user := models.User{
-		UUID:         uniuri.New(),
+		UUID:         uuid.New().String(),
 		Name:         request.Name,
 		Email:        request.Email,
 		PasswordHash: hex.EncodeToString(passwordHash),
