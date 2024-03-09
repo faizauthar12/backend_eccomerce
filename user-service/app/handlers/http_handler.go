@@ -3,15 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"os"
-	"strconv"
-
 	"github.com/faizauthar12/backend_eccomerce/global-utils/mongodb"
 	"github.com/faizauthar12/backend_eccomerce/user-service/app/middlewares"
 	"github.com/faizauthar12/backend_eccomerce/user-service/app/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"os"
 )
 
 func MainHttpHandler(
@@ -22,14 +19,17 @@ func MainHttpHandler(
 	g.Use(middlewares.CORSMiddleware(), middlewares.JSONMiddleware(), RequestId())
 
 	routes.InitHTTPRoute(g, mongodbClient, ctx)
-	useSSL, err := strconv.ParseBool(os.Getenv("USE_SSL"))
+	//useSSL, err := strconv.ParseBool(os.Getenv("USE_SSL"))
 	addr := fmt.Sprintf(":%s", os.Getenv("MAIN_PORT"))
 
-	if err != nil || useSSL {
-		g.RunTLS(addr, os.Getenv("PUBLIC_SSL_PATH"), os.Getenv("PRIVATE_SSL_PATH"))
-	} else {
-		err = http.ListenAndServe(addr, g)
-	}
+	//if err != nil || useSSL {
+	//	g.RunTLS(addr, os.Getenv("PUBLIC_SSL_PATH"), os.Getenv("PRIVATE_SSL_PATH"))
+	//} else {
+	//	err = http.ListenAndServe(addr, g)
+	//}
+
+	//http.ListenAndServe(addr, g)
+	g.Run(addr)
 }
 
 func RequestId() gin.HandlerFunc {

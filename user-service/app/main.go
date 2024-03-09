@@ -27,6 +27,7 @@ func main() {
 		break
 	default:
 		mainWithoutArg()
+		break
 	}
 }
 
