@@ -41,5 +41,5 @@ func (u *UserUseCase) Insert(
 		return &models.User{}, inserUserResult.ErrorLog
 	}
 
-	return inserUserResult.User, &model.ErrorLog{}
+	return inserUserResult.User, inserUserResult.ErrorLog
 }

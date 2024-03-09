@@ -18,7 +18,7 @@ func InitUserRoute(
 
 	userControllerGroup := g.Group(path)
 	{
-		userControllerGroup.POST("/user", ctrl.Insert)
+		userControllerGroup.POST("", ctrl.Insert)
 	}
 
 	// userControllerProtectedGroup := userControllerGroup.Use()

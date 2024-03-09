@@ -5,6 +5,8 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"errors"
+	"github.com/faizauthar12/backend_eccomerce/global-utils/helper"
+	"net/http"
 	"strings"
 	"time"
 
@@ -29,7 +31,8 @@ type UserRepository struct {
 
 func NewUserRepository(mongod mongodb.IMongoDB) IUserRepository {
 	return &UserRepository{
-		mongod: mongod,
+		mongod:         mongod,
+		collectionUser: constants.COLLECTION_USER,
 	}
 }
 
@@ -68,7 +71,9 @@ func (r *UserRepository) Insert(
 			}
 		}
 
+		errorLogData := helper.WriteLog(err, http.StatusInternalServerError, err.Error())
 		response.Error = err
+		response.ErrorLog = errorLogData
 		result <- response
 		return
 	}
