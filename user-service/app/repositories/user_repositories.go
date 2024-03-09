@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/faizauthar12/backend_eccomerce/global-utils/helper"
+	"github.com/faizauthar12/backend_eccomerce/global-utils/model"
 	"net/http"
 	"strings"
 	"time"
@@ -21,6 +22,7 @@ import (
 
 type IUserRepository interface {
 	Insert(request *models.UserRequest, ctx context.Context, result chan *models.UserChan)
+	FindByEmail(email string, ctx context.Context, result chan *models.UserChan)
 }
 
 type UserRepository struct {
@@ -72,6 +74,32 @@ func (r *UserRepository) Insert(
 		}
 
 		errorLogData := helper.WriteLog(err, http.StatusInternalServerError, err.Error())
+		response.Error = err
+		response.ErrorLog = errorLogData
+		result <- response
+		return
+	}
+
+	response.User = &user
+	result <- response
+	return
+}
+
+func (r *UserRepository) FindByEmail(email string, ctx context.Context, result chan *models.UserChan) {
+	response := &models.UserChan{}
+	collection := r.mongod.Client().Database(constants.DATABASE).Collection(r.collectionUser)
+
+	var user models.User
+	err := collection.FindOne(ctx, models.User{Email: email}).Decode(&user)
+	if err != nil {
+		var errorLogData *model.ErrorLog
+		if err == mongo.ErrNoDocuments {
+			errorLogData = helper.WriteLog(err, http.StatusNotFound, err.Error())
+
+		} else {
+			errorLogData = helper.WriteLog(err, http.StatusInternalServerError, err.Error())
+		}
+
 		response.Error = err
 		response.ErrorLog = errorLogData
 		result <- response
