@@ -4,8 +4,8 @@ type Response struct {
 	StatusCode int         `json:"status_code"`
 	Data       interface{} `json:"data,omitempty"`
 	Error      *ErrorLog   `json:"error,omitempty"`
-	Page       int         `json:"page,omitempty"`
-	PerPage    int         `json:"per_page,omitempty"`
+	Pages      int64       `json:"pages,omitempty"`
+	NumItems   int64       `json:"num_items,omitempty"`
 	Total      int64       `json:"total,omitempty"`
 	StatCode   string      `json:"stat_code,omitempty"`
 	StatMsg    string      `json:"stat_msg,omitempty"`
