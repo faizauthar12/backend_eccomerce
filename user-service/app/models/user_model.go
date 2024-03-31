@@ -3,13 +3,17 @@ package models
 import "github.com/faizauthar12/backend_eccomerce/global-utils/model"
 
 type User struct {
-	UUID         string `json:"uuid,omitempty" bson:"uuid,omitempty"`
-	Name         string `json:"name,omitempty" bson:"name,omitempty"`
-	Email        string `json:"email,omitempty" bson:"email,omitempty"`
-	PasswordHash string `json:"password_hash,omitempty" bson:"password_hash,omitempty"`
-	PasswordSalt string `json:"password_salt,omitempty" bson:"password_salt,omitempty"`
-	CreatedAt    int64  `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt    int64  `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	UUID              string `json:"uuid" bson:"uuid"`
+	Name              string `json:"name" bson:"name"`
+	Email             string `json:"email" bson:"email"`
+	Role              string `json:"role" bson:"role"`
+	PasswordHash      string `json:"password_hash" bson:"password_hash"`
+	PasswordSalt      string `json:"password_salt" bson:"password_salt"`
+	Token             string `json:"token" bson:"token"`
+	RefreshToken      string `json:"refresh_token" bson:"refresh_token"`
+	RefreshTokenCount int    `json:"refresh_token_count" bson:"refresh_token_count"`
+	CreatedAt         int64  `json:"created_at" bson:"created_at"`
+	UpdatedAt         int64  `json:"updated_at" bson:"updated_at"`
 }
 
 type UserChan struct {
@@ -22,7 +26,19 @@ type UserChan struct {
 }
 
 type UserRequest struct {
-	Name     string `json:"name" bson:"name,omitempty" binding:"required"`
-	Email    string `json:"email" bson:"email,omitempty" binding:"required"`
-	Password string `json:"password" bson:"password,omitempty" binding:"required"`
+	Name     string `json:"name" bson:"name" binding:"required"`
+	Email    string `json:"email" bson:"email" binding:"required"`
+	Password string `json:"password" bson:"password" binding:"required"`
+	Role     string `json:"role" bson:"role" binding:"required"`
+}
+
+type UserResponse struct {
+	UUID         string `json:"uuid" bson:"uuid"`
+	Name         string `json:"name" bson:"name"`
+	Email        string `json:"email" bson:"email"`
+	Role         string `json:"role" bson:"role"`
+	Token        string `json:"token" bson:"token"`
+	RefreshToken string `json:"refresh_token" bson:"refresh_token"`
+	CreatedAt    int64  `json:"created_at" bson:"created_at"`
+	UpdatedAt    int64  `json:"updated_at" bson:"updated_at"`
 }
