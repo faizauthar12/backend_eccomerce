@@ -19,12 +19,14 @@ import (
 	"github.com/faizauthar12/backend_eccomerce/user-service/app/models"
 	log "github.com/sirupsen/logrus"
 	"github.com/xdg-go/pbkdf2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type IUserRepository interface {
 	Insert(request *models.UserRequest, ctx context.Context, result chan *models.UserChan)
 	FindByEmail(email string, ctx context.Context, result chan *models.UserChan)
+	Update(user *models.User, ctx context.Context, result chan *models.UserChan)
 }
 
 type UserRepository struct {
@@ -109,6 +111,32 @@ func (r *UserRepository) FindByEmail(email string, ctx context.Context, result c
 	}
 
 	response.User = &user
+	result <- response
+	return
+}
+
+func (r *UserRepository) Update(
+	user *models.User,
+	ctx context.Context,
+	result chan *models.UserChan,
+) {
+	response := &models.UserChan{}
+
+	collection := r.mongod.Client().Database(constants.DATABASE).Collection(r.collectionUser)
+
+	filter := bson.D{{Key: "uuid", Value: user.UUID}}
+
+	update := bson.D{{Key: "$set", Value: user}}
+
+	_, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		errorLogData := helper.WriteLog(err, http.StatusInternalServerError, err.Error())
+		response.Error = err
+		response.ErrorLog = errorLogData
+		result <- response
+		return
+	}
+
 	result <- response
 	return
 }

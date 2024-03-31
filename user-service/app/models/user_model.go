@@ -32,6 +32,11 @@ type UserRequest struct {
 	Role     string `json:"role" bson:"role" binding:"required"`
 }
 
+type UserLoginRequest struct {
+	Email    string `json:"email" bson:"email" binding:"required"`
+	Password string `json:"password" bson:"password" binding:"required"`
+}
+
 type UserResponse struct {
 	UUID         string `json:"uuid" bson:"uuid"`
 	Name         string `json:"name" bson:"name"`

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/faizauthar12/backend_eccomerce/global-utils/helper"
 	"github.com/faizauthar12/backend_eccomerce/global-utils/model"
@@ -15,6 +16,7 @@ import (
 
 type IUserController interface {
 	Insert(ctx *gin.Context)
+	Login(ctx *gin.Context)
 }
 
 type UserController struct {
@@ -70,4 +72,41 @@ func (c *UserController) Insert(ctx *gin.Context) {
 	result.StatusCode = http.StatusCreated
 
 	ctx.JSON(http.StatusCreated, result)
+}
+
+func (c *UserController) Login(ctx *gin.Context) {
+	var result model.Response
+	var user models.UserLoginRequest
+
+	err := ctx.BindJSON(&user)
+	if err != nil {
+		errorLog := helper.WriteLog(err, http.StatusBadRequest, err.Error())
+		result.StatusCode = http.StatusBadRequest
+		result.Error = errorLog
+		ctx.JSON(http.StatusBadRequest, result)
+		return
+	}
+
+	userData, errorLog := c.userUseCase.Authenticate(&user)
+
+	if errorLog != nil {
+		result.StatusCode = errorLog.StatusCode
+		result.Error = errorLog
+		ctx.JSON(errorLog.StatusCode, result)
+		return
+	}
+
+	userResponse, errorLog := c.userUseCase.GenerateToken(userData, os.Getenv("JWT_API_SECRET"))
+
+	if errorLog != nil {
+		result.StatusCode = errorLog.StatusCode
+		result.Error = errorLog
+		ctx.JSON(errorLog.StatusCode, result)
+		return
+	}
+
+	result.Data = userResponse
+	result.StatusCode = http.StatusOK
+
+	ctx.JSON(http.StatusOK, result)
 }
