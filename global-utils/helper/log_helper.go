@@ -6,7 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/faizauthar12/backend_eccomerce/global-utils/model"
+	"github.com/faizauthar12/eccomerce/global-utils/model"
 	"github.com/sirupsen/logrus"
 )
 
