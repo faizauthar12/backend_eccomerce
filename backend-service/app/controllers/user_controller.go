@@ -59,7 +59,16 @@ func (c *UserController) Insert(ctx *gin.Context) {
 		return
 	}
 
-	userResponse, errorLog := c.userUseCase.Insert(&user)
+	userData, errorLog := c.userUseCase.Insert(&user)
+
+	if errorLog != nil {
+		result.StatusCode = errorLog.StatusCode
+		result.Error = errorLog
+		ctx.JSON(errorLog.StatusCode, result)
+		return
+	}
+
+	userResponse, errorLog := c.userUseCase.GenerateToken(userData, os.Getenv("JWT_API_SECRET"))
 
 	if errorLog != nil {
 		result.StatusCode = errorLog.StatusCode

@@ -37,3 +37,14 @@ func InitHTTPCartController(
 	handler := NewCartController(ctx, mongod, cartUseCase, cartRepository)
 	return handler
 }
+
+func InitHTTPOrderController(
+	mongod mongodb.IMongoDB,
+	ctx context.Context,
+) IOrderController {
+	orderRepository := repositories.NewOrderRepository(mongod)
+	orderUseCase := usecases.NewOrderUseCase(orderRepository, mongod, ctx)
+
+	handler := NewOrderController(ctx, mongod, orderUseCase)
+	return handler
+}

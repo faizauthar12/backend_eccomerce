@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/faizauthar12/eccomerce/backend-service/app/controllers"
+	"github.com/faizauthar12/eccomerce/backend-service/app/middlewares"
 	"github.com/faizauthar12/eccomerce/global-utils/mongodb"
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +19,7 @@ func InitCartRoute(
 
 	cartControllerGroup := g.Group(path)
 	{
+		cartControllerGroup.Use(middlewares.TokenMiddleware(mongod, ctx))
 		cartControllerGroup.POST("", ctrl.Insert)
 		cartControllerGroup.GET("", ctrl.Get)
 	}

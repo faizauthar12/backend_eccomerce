@@ -5,6 +5,7 @@ const (
 	COLLECTION_USER    = "users"
 	COLLECTION_PRODUCT = "products"
 	COLLECTION_CARTS   = "carts"
+	COLLECTION_ORDERS  = "orders"
 
 	JWT_TOKEN_ISSUEER          = "faizauthar12"
 	JWT_TOKEN_LIFESPAN         = 168 // 1 week in hours

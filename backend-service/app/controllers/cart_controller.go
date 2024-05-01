@@ -15,6 +15,7 @@ import (
 
 type ICartController interface {
 	Get(ctx *gin.Context)
+	GetTotalItemInCart(ctx *gin.Context)
 	Insert(ctx *gin.Context)
 }
 
@@ -45,8 +46,14 @@ func (c *CartController) Get(ctx *gin.Context) {
 	// var err error
 	// var validationErrors []error
 
+	// get user from gin context and set to local context
+	// user, _ := ctx.Get("user")
+	// c.ctx = context.WithValue(c.ctx, "user", user)
+
+	user := ctx.Value("user").(*models.UserJWT)
+
 	cartRequest := &models.Cart{
-		UserUUID: "WE NEED THE USER UUID FROM BEARER TOKEn",
+		UserUUID: user.UUID,
 	}
 
 	cartResponse, errorLog := c.cartUseCase.Get(cartRequest)
@@ -61,12 +68,36 @@ func (c *CartController) Get(ctx *gin.Context) {
 	result.StatusCode = http.StatusOK
 
 	ctx.JSON(http.StatusOK, result)
+}
 
+func (c *CartController) GetTotalItemInCart(ctx *gin.Context) {
+	result := model.Response{}
+
+	user := ctx.Value("user").(*models.UserJWT)
+
+	cartRequest := &models.Cart{
+		UserUUID: user.UUID,
+	}
+
+	cartResponse, errorLog := c.cartUseCase.GetTotalItemInCart(cartRequest)
+	if errorLog != nil {
+		result.StatusCode = errorLog.StatusCode
+		result.Error = errorLog
+		ctx.JSON(errorLog.StatusCode, result)
+		return
+	}
+
+	result.Data = cartResponse
+	result.StatusCode = http.StatusOK
+
+	ctx.JSON(http.StatusOK, result)
 }
 
 func (c *CartController) Insert(ctx *gin.Context) {
 	var result model.Response
 	var cart models.Cart
+
+	user := ctx.Value("user").(*models.UserJWT)
 
 	err := ctx.BindJSON(&cart)
 	if err != nil {
@@ -77,6 +108,7 @@ func (c *CartController) Insert(ctx *gin.Context) {
 		return
 	}
 
+	cart.UserUUID = user.UUID
 	cartResponse, errorLog := c.cartUseCase.Insert(&cart)
 	if errorLog != nil {
 		result.StatusCode = errorLog.StatusCode

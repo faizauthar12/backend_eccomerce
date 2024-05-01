@@ -5,15 +5,17 @@ import (
 )
 
 type CartItem struct {
-	UUID     string  `json:"uuid" bson:"uuid"`
-	Price    float64 `json:"price" bson:"price"`
-	Quantity int64   `json:"quantity" bson:"quantity"`
+	ProductUUID string  `json:"product_uuid" bson:"product_uuid"`
+	Price       float64 `json:"price" bson:"price"`
+	Quantity    int64   `json:"quantity" bson:"quantity"`
+	Total       float64 `json:"total" bson:"total"`
 }
 
 type Cart struct {
-	UUID      string     `json:"uuid" bson:"uuid"`
+	// UUID      string     `json:"uuid" bson:"uuid"`
 	UserUUID  string     `json:"user_uuid" bson:"user_uuid"`
 	CartItems []CartItem `json:"cart_items" bson:"cart_items"`
+	Total     float64    `json:"total" bson:"total"`
 	CreatedAt int64      `json:"created_at" bson:"created_at"`
 	UpdatedAt int64      `json:"updated_at" bson:"updated_at"`
 }

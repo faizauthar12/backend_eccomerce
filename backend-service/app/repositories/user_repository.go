@@ -64,6 +64,7 @@ func (r *UserRepository) Insert(
 		Email:        request.Email,
 		PasswordHash: hex.EncodeToString(passwordHash),
 		PasswordSalt: salt,
+		Role:         request.Role,
 		CreatedAt:    timeNow,
 	}
 
@@ -95,8 +96,10 @@ func (r *UserRepository) FindByEmail(email string, ctx context.Context, result c
 	response := &models.UserChan{}
 	collection := r.mongod.Client().Database(constants.DATABASE).Collection(r.collectionUser)
 
-	var user models.User
-	err := collection.FindOne(ctx, models.User{Email: email}).Decode(&user)
+	filter := bson.D{{Key: "email", Value: email}}
+
+	user := models.User{}
+	err := collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		var errorLogData *model.ErrorLog
 		if err == mongo.ErrNoDocuments {

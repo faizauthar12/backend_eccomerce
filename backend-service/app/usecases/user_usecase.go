@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/faizauthar12/eccomerce/backend-service/app/constants"
@@ -21,6 +23,8 @@ type IUserUseCase interface {
 	Insert(request *models.UserRequest) (*models.User, *model.ErrorLog)
 	Authenticate(request *models.UserLoginRequest) (*models.User, *model.ErrorLog)
 	GenerateToken(request *models.User, apiSecret string) (*models.UserResponse, *model.ErrorLog)
+	ParseAccessToken(accessToken string, apiSecret string) (*models.UserJWT, error)
+	ParseRefreshToken(refreshToken string, apiSecret string) (*jwt.RegisteredClaims, error)
 }
 
 type UserUseCase struct {
@@ -167,4 +171,72 @@ func (u *UserUseCase) GenerateToken(
 	}
 
 	return userResponse, nil
+}
+
+func (u *UserUseCase) extractBearerToken(bearerToken string) string {
+	// Extract token from bearerToken
+	if len(strings.Split(bearerToken, " ")) == 2 {
+		bearerToken = strings.Split(bearerToken, " ")[1]
+	}
+
+	return bearerToken
+}
+
+func (u *UserUseCase) ParseAccessToken(
+	accessToken string,
+	apiSecret string,
+) (*models.UserJWT, error) {
+	accessToken = u.extractBearerToken(accessToken)
+
+	// Create an instance of UserClaims
+	userClaims := &models.UserJWT{}
+
+	// Parse the token
+	token, errorParsingToken := jwt.ParseWithClaims(accessToken, userClaims, func(token *jwt.Token) (interface{}, error) {
+		// Validate the alg
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(apiSecret), nil
+	})
+
+	if errorParsingToken != nil {
+		return nil, errorParsingToken
+	}
+
+	if claims, ok := token.Claims.(*models.UserJWT); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, errorParsingToken
+	}
+}
+
+func (u *UserUseCase) ParseRefreshToken(
+	refreshToken string,
+	apiSecret string,
+) (*jwt.RegisteredClaims, error) {
+
+	refreshToken = u.extractBearerToken(refreshToken)
+
+	// Create an instance of jwt.RegisteredClaims
+	claims := &jwt.RegisteredClaims{}
+
+	// Parse the token
+	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
+		// Validate the alg
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(apiSecret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, err
+	}
 }

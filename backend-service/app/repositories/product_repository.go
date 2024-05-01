@@ -95,9 +95,9 @@ func (r *ProductRepository) Get(
 
 	defer mongoCursor.Close(ctx)
 
-	var products []*models.Product
+	products := []*models.Product{}
 	for mongoCursor.Next(ctx) {
-		var product models.Product
+		product := models.Product{}
 		err = mongoCursor.Decode(&product)
 		if err != nil {
 			errorLogData := helper.WriteLog(err, http.StatusInternalServerError, err.Error())

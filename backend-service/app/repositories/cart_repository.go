@@ -40,7 +40,9 @@ func (r *CartRepository) GetCartByUserUUID(
 	ctx context.Context,
 	result chan *models.CartChan,
 ) {
-	response := &models.CartChan{}
+	response := &models.CartChan{
+		ErrorLog: &model.ErrorLog{},
+	}
 
 	collection := r.mongod.Client().Database(constants.DATABASE).Collection(r.collectionProduct)
 
@@ -69,13 +71,20 @@ func (r *CartRepository) GetCartByUserUUID(
 	return
 }
 
-// Insert Will perform update with upsert option
 func (r *CartRepository) InsertByUserUUID(
 	cart *models.Cart,
 	ctx context.Context,
 	result chan *models.CartChan,
 ) {
 	response := &models.CartChan{}
+
+	var total float64
+	for indexItem, item := range cart.CartItems {
+		cart.CartItems[indexItem].Total = item.Price * float64(item.Quantity)
+		total += cart.CartItems[indexItem].Total
+	}
+
+	cart.Total = total
 
 	collection := r.mongod.Client().Database(constants.DATABASE).Collection(r.collectionProduct)
 
